@@ -76,6 +76,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClCompile Include="cmd.c" />
+    <ClCompile Include="elf_info.c" />
     <ClCompile Include="elf_list.c" />
     <ClCompile Include="elf_mmap.c" />
     <ClCompile Include="inject.c" />
@@ -84,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cmd.h" />
+    <ClInclude Include="elf_info.h" />
     <ClInclude Include="elf_list.h" />
     <ClInclude Include="elf_mmap.h" />
     <ClInclude Include="hok.h" />

@@ -174,6 +174,27 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
     linking_info* lp;
     int c;
     for (int i = 0; i < fnc; i++) {
-        if((lp = (linking_info*)))
+        if ((lp = (linking_info*)get_plt(dst.mem)) == NULL) {
+            printf("elf_relocate() get_plt() error\nunable to get GOT/PLT info\n");
+            return INFO_ERR;
+        }
+        for (int j = 0; j < lp[0].count; j++) {
+            if (strcmp(lp[j].name, function_call[i].function) == 0) {
+                //分配调用适当的偏移量，公式：offset = address - callsite - 4
+                long vaddr = *(long*)&dst.mem[dst.data_offset + lp[j].r_offset - dst.data_vaddr];
+                long call_offset = lp[j].r_offset - function_call[i].vaddr - 4;
+                
+                //这一坨操作不是很懂。。。尤其是这三个数字是什么意思？
+                *(uint8_t*)&dst.mem[(function_call[i].vaddr - get_base(&dst, TEXT)) - 1] = 0xff;
+                *(uint8_t*)&dst.mem[function_call[i].vaddr - get_base(&dst, TEXT)] = 0x15;
+                *(unsigned long*)&dst.mem[function_call[i].vaddr - get_base(&dst, TEXT) + 1] = lp[j].r_offset;
+
+                elf_relocate(&dst);
+            }
+        }
     }
+
+    unload_elf(&dst);
+    free(target);
+    return SUCCESS;
 }
