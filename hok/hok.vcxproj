@@ -79,6 +79,7 @@
     <ClCompile Include="elf_info.c" />
     <ClCompile Include="elf_list.c" />
     <ClCompile Include="elf_mmap.c" />
+    <ClCompile Include="except.c" />
     <ClCompile Include="inject.c" />
     <ClCompile Include="man.c" />
     <ClCompile Include="reloc.c" />
@@ -88,6 +89,7 @@
     <ClInclude Include="elf_info.h" />
     <ClInclude Include="elf_list.h" />
     <ClInclude Include="elf_mmap.h" />
+    <ClInclude Include="except.h" />
     <ClInclude Include="hok.h" />
     <ClInclude Include="inject.h" />
     <ClInclude Include="reloc.h" />

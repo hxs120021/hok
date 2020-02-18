@@ -114,3 +114,19 @@ int unload_elf(Elf32_mem_t* elf) {
 		return MEM_ERR;
 	return SUCCESS;
 }
+
+int reload_elf(Elf32_mem_t* elf) {
+	int type = elf->elf_type;
+	int size = elf->size;
+	char name[MAXSTR];
+	strcpy(name, elf->name);
+
+	unload_elf(elf);
+
+	int _err;
+	if ((_err = load_elf(name, MAP_SHARED, PROT_READ | PROT_WRITE, 0, 0, elf)) < 0) {
+		printf("reload_elf() load_elf() error\n");
+		return _err;
+	}
+	return SUCCESS;
+}
