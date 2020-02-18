@@ -171,6 +171,31 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
         return _err;
     }
 
+    for (int i = 0; i < obj.ehdr->e_shnum; i++) {
+        if (obj.shdr[i].sh_type == SHT_SYMTAB) {
+            //.strtab节和.shstrtab节
+            //该节对应的符号名？
+            sym_string_table = (char*)obj.section[obj.shdr[i].sh_link];
+            //该节的符号项
+            symtab = (Elf32_Sym*)obj.section[i];
+            int st_type = ELF32_ST_TYPE(symtab->st_info);
+            for (int j = 0; j < obj.shdr[i].sh_size / sizeof(Elf32_Sym); j++, symtab++) {
+                if (st_type == STT_FUNC || st_type == STT_OBJECT) {
+                    //这个函数超级复杂。。。
+                    add_symbol(&sym_string_table[symtab->st_name],
+                        get_reloc_sym_addr(&sym_string_table[symtab->st_name], obj.shdr, obj.ehdr->e_shnum, obj.mem),
+                        get_sym_by_name(&sym_string_table[symtab->st_name], obj.shdr, obj.ehdr->e_shnum, obj.mem),
+                        &dst);
+                    if ((_err = reload_elf(&dst)) < 0) {
+                        printf("elf_relocate() reload_elf() error\n");
+                        return _err;
+                    }
+                }
+            }
+        }
+    }
+    unload_elf(&obj);
+
     linking_info* lp;
     int c;
     for (int i = 0; i < fnc; i++) {
@@ -186,10 +211,10 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
                 
                 //这一坨操作不是很懂。。。尤其是这三个数字是什么意思？
                 *(uint8_t*)&dst.mem[(function_call[i].vaddr - get_base(&dst, TEXT)) - 1] = 0xff;
-                *(uint8_t*)&dst.mem[function_call[i].vaddr - get_base(&dst, TEXT)] = 0x15;
+                *(uint8_t*)&dst.mem[function_call[i].vaddr - get_base(&dst, TEXT)] = 0x15;  // = call_offset;
                 *(unsigned long*)&dst.mem[function_call[i].vaddr - get_base(&dst, TEXT) + 1] = lp[j].r_offset;
-
-                elf_relocate(&dst);
+                
+                reload_elf(&dst);
             }
         }
     }

@@ -15,4 +15,9 @@ int build_sections(uint8_t*** section, uint8_t* mem);
 //卸载elf
 int unload_elf(Elf32_mem_t* elf);
 
+//暂时还不知道干什么用的函数：
+int reload_elf(Elf32_mem_t* elf);
+
+
+
 #endif
