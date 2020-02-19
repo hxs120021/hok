@@ -53,6 +53,8 @@
 #define FILE_ERR	-128
 #define OPFILE_ERR	-129
 #define CLOFIL_ERR  -130
+#define WTFILE_ERR  -131
+#define RDFILE_REE  -132
 
 
 typedef struct stat STAT;
