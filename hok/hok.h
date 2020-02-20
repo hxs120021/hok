@@ -34,11 +34,14 @@
 #define TMP ".zyx.tmp_bin"
 #define TEMP_FILE	"temp_bin"
 #define MAXSTR		255
+#define PAGE_SIZE 4096
 
 #define NO_JMP_CODE ~0L
 
 #define TEXT_PADDING_INFECTION  1
-#define DATA_INFECTION          2
+#define TEXT_ENTRY_INFECTION    2
+#define DATA_SEGMENT_INFECTION  3
+#define DATA_INFECTION          4
 #define DATA    1
 #define TEXT    2
 
@@ -56,6 +59,7 @@
 #define CLOFIL_ERR  -130
 #define WTFILE_ERR  -131
 #define RDFILE_REE  -132
+#define NOTFOUND    -404
 
 
 typedef struct stat STAT;
