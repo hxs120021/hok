@@ -31,6 +31,7 @@
 #define BLUE  "\033[0;34m"
 #define END   "\033[0m"
 
+#define TMP ".zyx.tmp_bin"
 #define TEMP_FILE	"temp_bin"
 #define MAXSTR		255
 
