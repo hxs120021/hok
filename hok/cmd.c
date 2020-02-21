@@ -69,6 +69,23 @@ int shell_do(elf_list** current, elf_list*** list_head) {
 
         return reloc(args, args_len, current, list_head);
     }
+    else if (strncasecmp(cmd, HIJACK, strlen(HIJACK)) == 0) {
+        if (args_len < 5) {
+            return ARGS_ERR;
+        }
+        return hijack(args, args_len, current, list_head);
+    }
     return 1;
 }
 
+int is_int(char* p){
+    if (p == NULL)
+        return 0;
+
+    while (*p != '\0' && *p != '\n')
+        if (*p >= '0' && *p <= '9')
+            p++;
+        else
+            return 0;
+    return 1;
+}

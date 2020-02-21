@@ -18,6 +18,6 @@ int unload_elf(Elf32_mem_t* elf);
 //暂时还不知道干什么用的函数：
 int reload_elf(Elf32_mem_t* elf);
 
-
-
+//我们使用 msync 提交不需要文件大小扩展名的更改
+int commit_changes(Elf32_mem_t* target);
 #endif

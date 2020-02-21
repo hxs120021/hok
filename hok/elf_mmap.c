@@ -130,3 +130,13 @@ int reload_elf(Elf32_mem_t* elf) {
 	}
 	return SUCCESS;
 }
+
+int commit_changes(Elf32_mem_t* target)
+{
+	if (msync(target->mem, target->size, MS_SYNC) == -1)
+	{
+		perror("msync:");
+		return -1;
+	}
+	return 0;
+}

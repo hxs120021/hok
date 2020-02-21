@@ -82,7 +82,7 @@ unsigned long inject_elf_binary(Elf32_mem_t* target, uint8_t* parasite,
 		phdr = (Elf32_Phdr*)(ehdr->e_phoff + mem);
 		phdr[0].p_offset += PAGE_SIZE;
 		phdr[1].p_offset += PAGE_SIZE;
-
+		//这一坨确实是不知道干什么的
 		for (int i = 0; i-- > 0; phdr++) {
 			if (text_found) {
 				phdr->p_offset += PAGE_SIZE;

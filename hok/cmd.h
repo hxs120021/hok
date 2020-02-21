@@ -4,6 +4,7 @@
 
 #include "hok.h"
 #include "reloc.h"
+#include "hijack.h"
 
 #define RELOCATE	"reloc"
 #define HIJACK		"hijack"
@@ -22,6 +23,6 @@ void main_loop();
 //单次交互内容
 int shell_do(elf_list** current, elf_list*** list_head);
 
-
+int is_int(char* p);
 
 #endif

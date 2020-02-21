@@ -14,4 +14,6 @@ Elf32_Sym* get_sym_by_name(char* name, Elf32_Shdr* shdr, int c, uint8_t* objmem)
 
 //get symbol by name from SYMTAB(not DYNSYM)
 Elf32_Addr get_reloc_sym_addr(char* name, Elf32_Shdr* shdr, int c, uint8_t* objmem);
+
+Elf32_Addr get_sym_addr(char* name, Elf32_mem_t* target);
 #endif // !_ELF_INFO_H_
