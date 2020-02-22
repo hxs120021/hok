@@ -57,6 +57,7 @@
 #define NULL_ERR    -5
 #define CALL_ERR    -6
 #define INFO_ERR    -7
+#define VALUE_ERR   -8
 #define FILE_ERR	-128
 #define OPFILE_ERR	-129
 #define CLOFIL_ERR  -130

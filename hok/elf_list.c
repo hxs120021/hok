@@ -1,5 +1,5 @@
 #include "elf_list.h"
-#include "elf_mmap.h"
+
 
 
 int add_elf(char* name, elf_list** root) {
@@ -21,4 +21,26 @@ int add_elf(char* name, elf_list** root) {
 	tmp->next = *root;
 	*root = tmp;
 	return SUCCESS;
+}
+
+int remove_elf(elf_list** current) {
+	elf_list* tmp;
+	if (current != NULL) {
+		unload_elf(&(*current)->elf);
+		tmp = (*current)->next;
+		free(*current);
+		*current = tmp;
+		return SUCCESS;
+	}
+	return MEM_ERR;
+}
+
+elf_list** search_by_name(char* name, struct elf_list** current) {
+	while (*current != NULL) {
+		if (strcmp((*current)->name, name) == 0) {
+			return current;
+		}
+		current = &(*current)->next;
+	}
+	return NULL;
 }

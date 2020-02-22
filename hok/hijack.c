@@ -46,3 +46,46 @@ int hijack(char** args, int args_len, elf_list** current, elf_list*** list_head)
 
 	return SUCCESS;
 }
+
+int hijack_function(Elf32_mem_t* target, int mode, unsigned long new_vaddr, char* function) {
+	uint8_t* mem;
+	Elf32_Dyn* dyn;
+	linking_info* lp;
+	unsigned long got_entry = 0;
+
+	switch (mode) {
+	case BINARY_MODE_HIJACK:
+		printf("hijack to function : %s\n", function);
+		for (int i = 0; i < target->ehdr->e_phnum; i++) {
+			if (target->phdr->p_type == PT_DYNAMIC) {
+				dyn = (Elf32_Dyn*)(target->phdr[i].p_offset + mem);
+				break;
+			}
+		}
+
+		if ((lp = (linking_info*)get_plt(target->mem)) == NULL) {
+			printf("hijack_function() get_plt() error\n");
+			return CALL_ERR;
+		}
+
+		for (int i = 0; i < lp[0].count; i++) {
+			if (strcmp(lp[i].name, function) == 0) {
+				got_entry = target->data_offset + lp[i].r_offset - target->data_vaddr;
+				printf("GOT offset for %s : 0x%x\n", lp[i].name, got_entry);
+				break;
+			}
+		}
+
+		if (got_entry == 0) {
+			printf("hijack_function() got_entry value error, file:%s, line:%d\n", __FILE__, __LINE__);
+			return VALUE_ERR;
+		}
+		printf("modefying got entry for %s\n", function);
+		*(unsigned long*)&target->mem[got_entry] = new_vaddr;
+		break;
+	case PROCESS_MODE_HIJACK:
+		printf("not this mode\n");
+		return CALL_ERR;
+	}
+	return SUCCESS;
+}
