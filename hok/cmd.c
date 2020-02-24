@@ -37,13 +37,21 @@ int extract_args(char*** argvp, char* delim, char* s) {
     }
     else
         **argvp = NULL;
+    int lll = strlen((*argvp)[2]);
+    //for (int i = 1; i < tokens; i++) {
+    //    (*argvp)[i][strlen((*argvp)[i]) - 1] = 0;
+    //}
+    (*argvp)[tokens - 1][strlen((*argvp)[tokens - 1]) - 1] = 0;
     return tokens;
 }
 
 void main_loop() {
-    elf_list* current, ** list_head = NULL;
+    
+    elf_list* current, ** list_head, *_list_head = NULL;
+    list_head = &_list_head;
+    
     for (; ; ) {
-        current = list_head;
+        current = *list_head;
         shell_do(&current, &list_head);
     }
 }
@@ -88,4 +96,10 @@ int is_int(char* p){
         else
             return 0;
     return 1;
+}
+
+char* _strdup(char* s) {
+    char* ret = (char*)malloc(sizeof(char) * MAXSTR);
+    strcpy(ret, s);
+    return ret;
 }

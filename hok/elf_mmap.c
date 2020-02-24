@@ -25,7 +25,7 @@ int load_elf(char* name, int flags, int protect, Elf32_Addr v_addr, Elf32_Off of
 	int fd;
 	uint8_t* mem;
 	STAT st;
-	
+
 	strncpy(elf->name, name, MAXSTR - 1);
 	if ((fd = open(name, O_RDWR)) == -1) {
 		perror("load_elf() open\n");
@@ -54,7 +54,7 @@ int load_elf(char* name, int flags, int protect, Elf32_Addr v_addr, Elf32_Off of
 	elf->phdr = (Elf32_Phdr*)(elf->ehdr->e_phoff + mem);
 	elf->elf_type = elf->ehdr->e_type;
 
-	//定义PT_LOAD虚拟地址和偏移,大一上就是text段与存放全局变量和动态链接信息的data段
+	//定义PT_LOAD虚拟地址和偏移,大体上就是text段与存放全局变量和动态链接信息的data段
 	for (int i = 0; i < elf->ehdr->e_phnum; i++) {
 		if (elf->phdr[i].p_offset == 0 || elf->phdr[i].p_offset == 0x1000) {
 			//PF_X是判断flag表示可执行
@@ -76,12 +76,16 @@ int load_elf(char* name, int flags, int protect, Elf32_Addr v_addr, Elf32_Off of
 		}
 	}
 
-	elf->typestr[0] = strdup("ET_NONE");
-	elf->typestr[1] = strdup("ET_REL");
-	elf->typestr[2] = strdup("ET_EXEC");
-	elf->typestr[3] = strdup("ET_DYN");
-	elf->typestr[4] = strdup("ET_CORE");
-	build_sections(&elf->section, mem);
+	elf->typestr[0] = _strdup("ET_NONE");
+	elf->typestr[1] = _strdup("ET_REL");
+	elf->typestr[2] = _strdup("ET_EXEC");
+	elf->typestr[3] = _strdup("ET_DYN");
+	elf->typestr[4] = _strdup("ET_CORE");
+	int _err = 0;
+	if ((_err = build_sections(&elf->section, mem)) < 0) {
+		printf("load_elf() build_sections() error. file:%s, line:%d", __FILE__, __LINE__);
+		return _err;
+	}
 	close(fd);
 	return SUCCESS;
 }

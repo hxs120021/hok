@@ -51,8 +51,8 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
         printf("elf_relocate() load_elf() error\n");
         return _err;
     }
-
-    for (int i = 0, tot_len = 0; i < obj.ehdr->e_shnum; i++) {
+    tot_len = 0;
+    for (int i = 0 ; i < obj.ehdr->e_shnum; i++) {
         if (obj.shdr[i].sh_type == SHT_PROGBITS) {
             tot_len += obj.shdr[i].sh_size;
         }
@@ -79,6 +79,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
     //在目标进行重定位
     //在全部节中查找SHT_RELA/SHT_REL节
     for (int i = 0; i < obj.ehdr->e_shnum; i++) {
+        printf("index:%d -> sh_type:%d\n", i, obj.shdr[i].sh_type);
         switch (obj.shdr[i].sh_type)
         {
         case SHT_REL:
@@ -102,7 +103,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
                 printf("0x%08x %s addr: 0x%x\n", rel_val, &sym_string_table[symbol->st_name], target_addr);
                 //gotta complete hueristics here
                 if (rel_val == 0) {
-                    function_call[fnc].function = strdup(&sym_string_table[symbol->st_name]);
+                    function_call[fnc].function = _strdup(&sym_string_table[symbol->st_name]);
                     function_call[fnc].vaddr = target_addr;
                     printf("function : %s\n", function_call[fnc].function);
                     fnc++;
@@ -164,7 +165,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
         printf("elf_relocate() inject_elf_binary() error\n");
         return CALL_ERR;
     }
-    target_name = strdup(target->name);
+    target_name = _strdup(target->name);
     //卸载ELF，方便重定位有对象代码的版本
     if ((_err = load_elf(target_name, MAP_PRIVATE, PROT_READ | PROT_WRITE, 0, 0, &dst)) < 0) {
         printf("elr_relocate() load_elf() error\n");

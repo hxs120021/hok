@@ -25,4 +25,7 @@ int shell_do(elf_list** current, elf_list*** list_head);
 
 int is_int(char* p);
 
+//_strdup() 模仿strdup()的功能仿造一个函数
+char* _strdup(char* s);
+
 #endif

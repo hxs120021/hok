@@ -2,6 +2,7 @@
 #define _ELF_MMAP_H_
 
 #include "hok.h"
+#include "cmd.h"
 
 //判断是否为ELF文件
 int is_elf(uint8_t* mem);

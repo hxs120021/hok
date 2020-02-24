@@ -2,7 +2,7 @@
 
 
 
-int add_elf(char* name, elf_list** root) {
+elf_list* add_elf(char* name, elf_list** root) {
 	elf_list* tmp;
 
 	if ((tmp = (elf_list*)malloc(sizeof(elf_list))) == NULL) {
@@ -20,7 +20,7 @@ int add_elf(char* name, elf_list** root) {
 
 	tmp->next = *root;
 	*root = tmp;
-	return SUCCESS;
+	return *root;
 }
 
 int remove_elf(elf_list** current) {
