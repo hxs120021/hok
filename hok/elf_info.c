@@ -244,13 +244,15 @@ Elf32_Addr get_sym_addr(char* name, Elf32_mem_t* target) {
 	int sym_count;
 
 	for (int i = 0; i < target->ehdr->e_phnum; i++) {
-		if (target->shdr[i].sh_type == SHT_SYMTAB || target->shdr[i].sh_addr == SHT_DYNSYM) {
+		if (target->shdr[i].sh_type == SHT_SYMTAB || target->shdr[i].sh_type == SHT_DYNSYM) {
 			sym_str_table = (char*)target->section[target->shdr[i].sh_link];
 			symtab = (Elf32_Sym*)target->section[i];
 
 			for (int j = 0; j < target->shdr[i].sh_size / sizeof(Elf32_Sym); j++, symtab++) {
 				if (strcmp(&sym_str_table[symtab->st_name], name) == 0)
 					return symtab->st_value;
+				/*if (strcmp(&sym_str_table[symtab->st_name], "puts") == 0)
+					return symtab->st_value;*/
 			}
 		}
 	}

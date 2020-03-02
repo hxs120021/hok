@@ -51,6 +51,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
         printf("elf_relocate() load_elf() error\n");
         return _err;
     }
+    //从source中找到了所有TEXT段的东西，然后计算长度
     tot_len = 0;
     for (int i = 0 ; i < obj.ehdr->e_shnum; i++) {
         if (obj.shdr[i].sh_type == SHT_PROGBITS) {
@@ -78,26 +79,27 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
     sym_string_table = obj.section[sym_strndx];
     //在目标进行重定位
     //在全部节中查找SHT_RELA/SHT_REL节
-    for (int i = 0; i < obj.ehdr->e_shnum; i++) {
-        printf("index:%d -> sh_type:%d\n", i, obj.shdr[i].sh_type);
+    //执行对象代码的重新分配
+     for (int i = 0; i < obj.ehdr->e_shnum; i++) {
+        //printf("index:%d -> sh_type:0x%x\n", i, obj.shdr[i].sh_type);
         switch (obj.shdr[i].sh_type)
         {
         case SHT_REL:
-            //当前节在文件中的偏移，很神奇，这个偏移指向了一个偏移表项？？
+            //SHT_REL类型的节，节偏移指向的是一个重定位表项
             rel = (Elf32_Rel*)(obj.mem + obj.shdr[i].sh_offset);
             for (int j = 0; j < obj.shdr[i].sh_size / sizeof(Elf32_Rel); j++, rel++) {
                 //根据当前节的连接索引找到符号表
                 symtab = (Elf32_Sym*)obj.section[obj.shdr[i].sh_link];
                 //使用符号在符号表中的索引，找到符号表项
                 symbol = &symtab[ELF32_R_SYM(rel->r_info)];
-                //要修改的节
+                //当前节/当前节在总文件节中的索引
                 target_section = &obj.shdr[obj.shdr[i].sh_info];
                 target_index = obj.shdr[i].sh_info;
-                //目标地址
+                //当前节起始地址+重定位项中记录的需要重定位的地址(该地址是相抵起始当前节起始地址的偏移)
                 target_addr = target_section->sh_addr + rel->r_offset;
-                //指向重新等位的目标
+                //？？？个人感觉和上一条语句一个意思。
                 reloc_ptr = (Elf32_Addr*)(obj.section[target_index] + rel->r_offset);
-                //重新定位值
+                //rel_val = 符号偏移地址+符号对应节的起始地址
                 rel_val = symbol->st_value;
                 rel_val += obj.shdr[symbol->st_shndx].sh_addr;
                 printf("0x%08x %s addr: 0x%x\n", rel_val, &sym_string_table[symbol->st_name], target_addr);
@@ -105,9 +107,10 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
                 if (rel_val == 0) {
                     function_call[fnc].function = _strdup(&sym_string_table[symbol->st_name]);
                     function_call[fnc].vaddr = target_addr;
-                    printf("function : %s\n", function_call[fnc].function);
+                    //printf("fnc: %d, vaddr: %x, function : %s\n", fnc, function_call[fnc].vaddr, function_call[fnc].function);
                     fnc++;
                 }
+                //printf("ELF32_R_TYPE(rel->r_info): %d\n", ELF32_R_TYPE(rel->r_info));
                 switch (ELF32_R_TYPE(rel->r_info)) {
                 case R_386_PC32:
                     *reloc_ptr += rel_val;
