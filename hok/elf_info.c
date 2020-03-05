@@ -15,7 +15,7 @@ linking_info* get_plt(unsigned char* mem) {
 	shdrp = shdr;
 	//这个地方原文为什么倒着来？
 	//for(int i = ehdr->e_shnum; i-- > 0; shdrp++){
-	for (int i = 1; i < ehdr->e_shnum; shdrp++) {
+	for (int i = ehdr->e_shnum; i-- > 0; shdrp++) {
 		if (shdrp->sh_type == SHT_DYNSYM) {
 			//.dynsym节，保存了动态符号信息，下面就是找到链接的符号表所在的节
 			symshdr = &shdr[shdrp->sh_link];
@@ -164,8 +164,9 @@ int add_symbol(char* name, Elf32_Addr vaddr, Elf32_Sym* sym, Elf32_mem_t* target
 		printf("add_symbol() write() error, file:%s, line:%d\n", __FILE__, __LINE__ - 1);
 		return WTFILE_ERR;
 	}
-
+	char* tmp_name = "/home/orz/CLionProjects/xxxx/helloo";
 	if (rename(TEMP_FILE, target->name) < 0) {
+	//if(rename(TEMP_FILE, tmp_name) < 0){
 		printf("add_symbol() rename() error, file:%s, line:%d\n", __FILE__, __LINE__ - 1);
 		return CALL_ERR;
 	}
@@ -242,7 +243,7 @@ Elf32_Addr get_sym_addr(char* name, Elf32_mem_t* target) {
 	Elf32_Sym* symtab;
 	char* sym_str_table;
 	int sym_count;
-
+	printf("name:%s\n", name);
 	for (int i = 0; i < target->ehdr->e_phnum; i++) {
 		if (target->shdr[i].sh_type == SHT_SYMTAB || target->shdr[i].sh_type == SHT_DYNSYM) {
 			sym_str_table = (char*)target->section[target->shdr[i].sh_link];

@@ -102,7 +102,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
                 //rel_val = 符号偏移地址+符号对应节的起始地址
                 rel_val = symbol->st_value;
                 rel_val += obj.shdr[symbol->st_shndx].sh_addr;
-                printf("0x%08x %s addr: 0x%x\n", rel_val, &sym_string_table[symbol->st_name], target_addr);
+                printf("in SHT_REL, 0x%08x %s addr: 0x%x\n", rel_val, &sym_string_table[symbol->st_name], target_addr);
                 //gotta complete hueristics here
                 if (rel_val == 0) {
                     function_call[fnc].function = _strdup(&sym_string_table[symbol->st_name]);
@@ -164,6 +164,7 @@ int elf_relocate(Elf32_mem_t* target, char* name, int type) {
         }
     }
     //注入重新定位的对象
+    //target: hello, obj_code: 
     if ((obj_vaddr = inject_elf_binary(target, obj_code, tot_len, NO_JMP_CODE, type)) < 0) {
         printf("elf_relocate() inject_elf_binary() error\n");
         return CALL_ERR;
